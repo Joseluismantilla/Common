@@ -1,0 +1,193 @@
+yum install rpm-build rpm-devel rpmdevtools 
+rpmbuild -ba shows an error but it create the rpmbuild folder
+
+echo “%_sourcedir %{_topdir}/SOURCES/%{name}-%{version}” >> ~/.rpmmacros
+
+Now we create a skeleton spec file:
+
+rpmdev-newspec ~/rpmbuild/SPECS/joseluis.spec
+
+Create the source tar ball in the SOURCES/ directory, using the previously created joseluis.1.gz file:
+
+cd ../SOURCES
+mkdir –p joseluis-1.0/
+cp /usr/local/man/man8/joseluis.1.gz joseluis-1.0/
+tar cvzf joseluis-1.0.tar.gz ./joseluis-1.0/
+mv joseluis-1.0.tar.gz ./joseluis-1.0/
+cd ../SPECS
+
+
+Now, we create the spec file.
+vim joseluis.spec
+
+Here’s an example of what my spec file looks like:
+
+Name:           joseluis
+Version:        1.0
+Release:        1%{?dist}
+Summary:        joseluis Documentation
+Group:          Testing
+License:        GPL
+Source0:        %{name}-%{version}.tar.gz
+BuildArch:      noarch
+Vendor:         joseluismantilla.com
+Packager:       joseluis
+
+%description
+This is a test. We are trying to install a
+sysadmin generated man page from a rpm file.
+Just to prove we can.
+
+%prep
+%setup -q
+
+%build
+
+%install
+mkdir -p $RPM_BUILD_ROOT/usr/share/man/man8
+install joseluis.1.gz $RPM_BUILD_ROOT/usr/share/man/man8
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root,-)
+/usr/share/man/man8/joseluis.1.gz
+
+%changelog
+* Wed Apr 29 2018  -
+- Initial build.
+
+
+Now save your spec file and create the rpm file:
+
+rpmbuild –ba joseluis.spec
+
+Look in the ../RPMS/noarch/ directory for your newly created rpm file!
+
+Now, we sign our RPM with a GPG Key with GPG
+
+[joseluis@linuxserver ~]$ mkdir ~/.gnupg
+[joseluis@linuxserver ~]$ gpg --gen-key
+gpg (GnuPG) 2.0.14; Copyright (C) 2009 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+Your selection? 1
+RSA keys may be between 1024 and 4096 bits long.
+What keysize do you want? (2048)
+Requested keysize is 2048 bits
+Please specify how long the key should be valid.
+         0 = key does not expire
+        = key expires in n days
+      w = key expires in n weeks
+      m = key expires in n months
+      y = key expires in n years
+Key is valid for? (0) 1y
+Key expires at Thu 28 Apr 2016 11:24:48 AM EDT
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: joseluis
+Email address: joseluis@gmail.com
+Comment: joseluis's RPM Signing Key
+You selected this USER-ID:
+    "joseluis  (joseluis's RPM Signing Key) "
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
+You need a Passphrase to protect your secret key.
+(At this point, you will enter a passphrase...)
+
+can't connect to `/home/joseluis/.gnupg/S.gpg-agent': No such file or directory
+gpg-agent[30638]: directory `/home/joseluis/.gnupg/private-keys-v1.d' created
+We need to generate a lot of random bytes. It is a good idea to perform
+some other action (type on the keyboard, move the mouse, utilize the
+disks) during the prime generation; this gives the random number
+generator a better chance to gain enough entropy.
+
+gpg: /home/joseluis/.gnupg/trustdb.gpg: trustdb created
+gpg: key 13B81880 marked as ultimately trusted
+public and secret key created and signed.
+
+gpg: checking the trustdb
+gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
+gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: next trustdb check due at 2018-04-28
+pub   2048R/13B81880 2015-04-29 [expires: 2018-04-28]
+      Key fingerprint = 0FFF 04F4 86EF 4343 740B  24CC 88D7 94E0 13B8 8880
+uid                  joseluis  (joseluis's RPM Signing Key)
+sub   2048R/48AE8EB3 2015-04-29 [expires: 2016-04-28]
+
+[joseluis@linuxserver ~]$
+
+
+You can list all your gpg keys and see the new key:
+
+
+[joseluis@linuxserver ~]$ gpg --list-keys
+/home/joseluis/.gnupg/pubring.gpg
+---------------------------------
+pub   2048R/13B88880 2017-04-28 [expires: 2018-04-28]
+uid                  joseluis  (joseluis's RPM Signing Key)
+...
+
+[joseluis@linuxserver ~]$
+
+
+Now export the GPG key to a file, by specifying the uid of the key to export:
+
+
+[joseluis@linuxserver ~]$ gpg --export -a 'joseluis ' > RPM-GPG-KEY-joseluismantilla
+
+
+Import the GPG key into the rpm keyring:
+
+
+[joseluis@linuxserver ~]$ sudo rpm --import RPM-GPG-KEY-joseluismantilla
+
+
+Check that rpm is aware of your gpg key:
+
+
+[joseluis@linuxserver ~]$ rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --> %{summary}\n'
+…
+gpg-pubkey-0608b895-4bd22942 --> gpg(EPEL (6) )
+gpg-pubkey-13b81880-5880f80a --> gpg(Jose Luis (joseluis's  RPM Signing Key) )
+…
+
+
+Add the following two lines to the bottom of your ~/.rpmmacros file:
+
+
+%_signature gpg
+%_gpg_name  joseluis
+
+
+This will tell the rpmbuild command (that we’ll be using later) which users gpg key to use for signing.
+
+
+Now we can use the RPM command to sign our rpm file with the GPG Key:
+
+
+[joseluis@linuxserver ~]$ rpm --addsign rpmbuild/RPMS/noarch/joseluis-1.0-1.el6.noarch.rpm
+Enter pass phrase:
+Pass phrase is good.
+rpmbuild/RPMS/noarch/joseluis-1.0-1.el6.noarch.rpm:
+[joseluis@linuxserver ~]$
+
+
+To verify that we have a signed rpm file, use the “rpm –qpi” command as in the following example:
+
+
+[joseluis@linuxserver ~]$ rpm -qpi rpmbuild/RPMS/noarch/joseluis-1.0-1.el6.noarch.rpm
+Name        : joseluis                         Relocations: (not relocatable)
+Version     : 1.0                               Vendor:
+Release     : 1.el6                         Build Date: Wed 28 Apr 2018 20:40:48
+Install Date: (not installed)               Build Host: joseluismantilla.com
+....

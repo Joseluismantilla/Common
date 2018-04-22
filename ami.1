@@ -1,0 +1,47 @@
+.\" Manpage for Ami.
+.\" Contact joseluismantilla@gmail.com for contact.
+.TH ami(1) "22 April 2018" "1.0" "Ami Man Page"
+.SH NAME
+ami \- Deploy and create images to AWS.
+.SH SYNOPSIS
+
+Ami is a command line to create images and deploy them to AWS.
+.SH DESCRIPTION
+
+ami  Execute all the values by default explained in each option.${bold}
+ami  [--OPTIONS|GoCD|Agent] Set new values defined below.
+.SH OPTIONS
+        -h | --help     display this help and exit
+        GoCd Installation Options
+        --go-version    Set the GoCD package version, by default the version is 18.2.0-6228
+        --go-repo       Set the url that contains the rpm package, by defaults is https://download.go.cd/binaries/
+        --go-rpm        Set the package\'s name, by default is go-agent-18.2.0-6228.noarch.rpm
+        --go-user       Set the user name to the agent, by default this user is go
+        --go-user-id    Set the uid to the go user, by default is 2005
+        --go-server     Set the ip or GoCd server for configure it in the agent config file, by default is example.com
+        --go-server-port    Set the port of the GoCD server in the agent.
+
+.SH COPYRIGHT
+COPYRIGHT
+       Copyright  ©  2018  Free  Software  Foundation,  Inc.   License  GPLv3+:  GNU  GPL version 3 or later
+       <http://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There  is  NO  WARRANTY,  to  the
+       extent permitted by law.
+
+Jose Mantilla have done this program like support to the Amazon community.
+.SH SEE ALSO
+ami(8)
+.SH BUGS
+No known bugs this week.
+.SH AUTHOR
+.PP
+Jose Luis Mantilla - Colombia
+.br
+RHCE, RHCA, Red Hat Instructor & Oracle Linux Certified
+.br
+Professional Linux
+.br
+Cell Phone:  (+57) 316-499-9168
+.br
+E-mail: joseluismantilla@gmail.com
+.PP

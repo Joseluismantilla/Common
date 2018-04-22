@@ -48,6 +48,11 @@ serverspec  => https://serverspec.org/resource_types.html
 Inspec      => https://www.inspec.io/docs/reference/migration/
 Goss
 
+## man example  
+Rules to create man documentation -> man 7 mdoc
+install -g 0 -o 0 -m 644 ami.1 /usr/share/man/man1/
+gzip /usr/share/man/man1/ami.1
+
 ## 80 Linux Monitoring tools -> https://blog.serverdensity.com/80-linux-monitoring-tools-know/
 
 ## Record terminal from python
