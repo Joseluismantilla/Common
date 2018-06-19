@@ -1,0 +1,16 @@
+Ejemplo de contenedores enlazados
+
+#Mysql
+docker run --name drupal-mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=drupal -e MYSQL_USER=drupal -e MYSQL_PASSWORD=drupal -d mysql:5.5
+
+#Postgres
+docker run --name some-postgres -e POSTGRES_USER=user -e POSTGRES_PASSWORD=postgres -d postgres
+
+sleep 5
+
+docker run --name drupal-test -p 8080:80 --link drupal-mysql:mysql -d drupal
+
+Ver ejemplos en https://docs.docker.com/samples/
+# Ejecutar con:
+# docker stack deploy -c stack.yml drupal
+# docker-compose -f stack.yml up
