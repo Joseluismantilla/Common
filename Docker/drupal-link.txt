@@ -14,3 +14,7 @@ Ver ejemplos en https://docs.docker.com/samples/
 # Ejecutar con:
 # docker stack deploy -c stack.yml drupal
 # docker-compose -f stack.yml up
+
+
+How to install NodeJs
+https://tecadmin.net/install-latest-nodejs-and-npm-on-centos/
