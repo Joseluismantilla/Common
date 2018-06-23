@@ -16,5 +16,5 @@ Ver ejemplos en https://docs.docker.com/samples/
 # docker-compose -f stack.yml up
 
 
-How to install NodeJs
+How to install NodeJs on Centos 7
 https://tecadmin.net/install-latest-nodejs-and-npm-on-centos/

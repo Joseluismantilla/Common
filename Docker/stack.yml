@@ -5,7 +5,7 @@
 #
 # Ejecutar con:
 # docker stack deploy -c stack.yml drupal
-# docker-compse -f stack.yml up
+# docker-compose -f stack.yml up
 #
 # Ver ejemplos en https://docs.docker.com/samples/
 #
