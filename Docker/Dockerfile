@@ -1,4 +1,4 @@
-Creation de centos7-systemd
+#Creation de centos7-systemd
 
 FROM centos:7
 ENV container docker
@@ -18,7 +18,7 @@ VOLUME [ "/sys/fs/cgroup" ]
 CMD ["/usr/sbin/init"]
 
 #--- Construir
-docker build --rm -t local/centos7-systemd .
+#docker build --rm -t local/centos7-systemd .
 
 #--- Lanzarlo
-docker run --name centos -id docker.io/centos/systemd
+#docker run --name centos -id docker.io/centos/systemd
