@@ -1,4 +1,4 @@
-!#/bin/bash
+#!/bin/bash
 
 #Validacion de sistema operativo
 if $(command -v hostnamectl) >/dev/null ; then
