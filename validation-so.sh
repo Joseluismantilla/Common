@@ -16,7 +16,7 @@ echo $OS
 
 #Validacion de arquitectura
 if [ $(uname -m) == 'x86_64' ]; then  # `getconf LONG_BIT` = "64"
-  # 64-bit codigo aqui
+  echo "64-bit codigo aqui"
 else
-  # 32-bit codigo aqui
+  echo "32-bit codigo aqui"
 fi
