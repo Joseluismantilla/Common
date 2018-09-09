@@ -29,13 +29,16 @@ $ shellcheck script.sh  => Linting tool for sh/bash scripts
 ```
 ## Optimizacion de pdfs
 
+Parametros
+```
 PDFSETTINGS **parameters**
   -dPDFSETTINGS=/screen lower quality, smaller size.
   -dPDFSETTINGS=/ebook for better quality, but slightly larger pdfs.
   -dPDFSETTINGS=/prepress output similar to Acrobat Distiller "Prepress Optimized" setting
   -dPDFSETTINGS=/printer selects output similar to the Acrobat Distiller "Print Optimized" setting
   -dPDFSETTINGS=/default selects output intended to be useful across a wide variety of uses, possibly at the expense of a larger output file
-
+```
+Comando
 ```
 find /home/joseluis/pdf-test -type f -name "*.pdf" -printf "%f\n" | while read -r file
 do
