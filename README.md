@@ -27,6 +27,23 @@ $ bash -e script.sh     => Exit  immediately  if a single command exits with a  
 $ bash -u script.sh     => prints an error when a variables is unset.
 $ shellcheck script.sh  => Linting tool for sh/bash scripts
 ```
+## Optimizacion de pdfs
+
+PDFSETTINGS **parameters**
+  -dPDFSETTINGS=/screen lower quality, smaller size.
+  -dPDFSETTINGS=/ebook for better quality, but slightly larger pdfs.
+  -dPDFSETTINGS=/prepress output similar to Acrobat Distiller "Prepress Optimized" setting
+  -dPDFSETTINGS=/printer selects output similar to the Acrobat Distiller "Print Optimized" setting
+  -dPDFSETTINGS=/default selects output intended to be useful across a wide variety of uses, possibly at the expense of a larger output file
+
+```
+find /home/joseluis/pdf-test -type f -name "*.pdf" -printf "%f\n" | while read -r file
+do
+  gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dBATCH -dQUIET -sOutputFile="new_$file" "$file"
+  #rm "$file"
+  mv "new_$file" "output/$file"
+done
+```
 
 ## Testing
 
