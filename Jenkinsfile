@@ -8,9 +8,23 @@ pipeline {
             sh 'echo "****** Primero stage *******"'
           }
         }
-        stage('') {
+        stage('error') {
           steps {
             echo 'Mensaje de Abajo'
+          }
+        }
+      }
+    }
+    stage('Segundo') {
+      parallel {
+        stage('Segundo') {
+          steps {
+            echo 'Segundo mensaje'
+          }
+        }
+        stage('') {
+          steps {
+            echo 'step under second'
           }
         }
       }
