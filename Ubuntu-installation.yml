@@ -1,0 +1,61 @@
+- name: Example
+  hosts: localhost
+  tasks:
+  - name: curl of vscode repo
+    apt_key:
+      url: "{{ item }}"
+      state: present
+    loop:
+      - https://dl.google.com/linux/linux_signing_key.pub
+      - https://packages.microsoft.com/keys/microsoft.asc
+
+
+  - name: Configuring repos 
+    apt_repository:
+      repo: "{{ item }}"
+      state: present 
+      filename: additional-repos
+      update_cache: yes 
+      validate_certs: yes 
+    loop:
+      - deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
+      - deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
+      - deb http://ppa.launchpad.net/peek-developers/stable/ubuntu bionic main
+      - deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
+      - ppa:projectatomic/ppa
+  - name: Refreshing repositories
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: latest
+      cache_valid_time: 86400
+    loop:
+      - software-properties-common 
+      - uidmap
+      - git
+      - apt-transport-https
+      - wget
+      #- code
+      #- podman
+      #- docker
+      #- virtualbox-ext-pack
+      #- vagrant
+      #- google-chrome-stable
+      #- aws-shell
+      #- shellcheck
+      #- nodejs
+      #- default-jdk
+      #- alien
+      #- gnome-tweak-tool
+      #- vlc
+      #- ubuntu-restricted-extras
+      #- xfburn
+      - snap
+  
+  #- name: Snap applications
+  #  snap:
+  #    name:
+  #      - skype
+  #      - slack
+  #    classic: yes
+  #    state: present
