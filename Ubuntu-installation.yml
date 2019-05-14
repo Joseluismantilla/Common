@@ -63,6 +63,10 @@
       - snap
       - unzip
       - gnome-shell-extensions
+  - name: Install serverless package globally.
+    npm:
+      name: serverless
+      global: yes
 
   - name: DevOps tools
     apt:
@@ -71,6 +75,9 @@
       - https://packages.chef.io/files/stable/chefdk/3.9.0/ubuntu/18.04/chefdk_3.9.0-1_amd64.deb
       - https://pm.puppet.com/cgi-bin/pdk_download.cgi?dist=ubuntu&rel=18.04&arch=amd64&ver=latest
       - https://www.mendeley.com/repositories/ubuntu/stable/amd64/mendeleydesktop-latest
+
+  - name: Installing Pulumi
+    command: "curl -fsSL https://get.pulumi.com | sh; pulumi gen-completion bash > /etc/bash_completion.d/pulumi.bash; source /etc/bash_completion.d/pulumi.bash"
 
   - name: Download terraform and packer 64 bits
     get_url:
@@ -84,9 +91,18 @@
     #when: "'64' in ansible_architecture and 'Linux' == ansible_system"
     notify:
     - Unarchive hashicorp archive
+    
+  - name: Script tab completions
+    git:
+      dest: /tmp/ 
+      repo: git@github.com:Joseluismantilla/Common.git 
+      force: no 
+      clone: yes
+    notify:
+      - Copying scripts    
 
   handlers:
-  - name: "Unarchive hashicorp archive"
+  - name: Unarchive hashicorp archive
     unarchive:
       src: "/tmp/{{item.name}}-{{item.version}}.zip"
       dest: /usr/local/bin/
@@ -96,6 +112,11 @@
         version: 0.11.13
       - name: packer
         version: 1.4.0
+
+  - name: Copying scripts
+    copy:
+        dest: /etc/bash_completion.d/
+        src: "/tmp/Common/bash_completion/*"
 
   # This section requires Ansible 2.8
   #post_tasks:
