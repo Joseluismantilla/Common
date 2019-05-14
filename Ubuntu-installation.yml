@@ -1,6 +1,7 @@
 - name: Example
   hosts: localhost
-  tasks:
+  become: true
+  pre_tasks:
   - name: curl of vscode repo
     apt_key:
       url: "{{ item }}"
@@ -8,7 +9,7 @@
     loop:
       - https://dl.google.com/linux/linux_signing_key.pub
       - https://packages.microsoft.com/keys/microsoft.asc
-
+      - https://download.docker.com/linux/ubuntu/gpg
 
   - name: Configuring repos 
     apt_repository:
@@ -21,8 +22,12 @@
       - deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
       - deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
       - deb http://ppa.launchpad.net/peek-developers/stable/ubuntu bionic main
-      - deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
+      - ppa:ansible/ansible
+      - deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
       - ppa:projectatomic/ppa
+      - deb http://linux.teamviewer.com/deb stable main
+      - ppa:peek-developers/stable
+  tasks:
   - name: Refreshing repositories
     apt:
       name: "{{ item }}"
@@ -35,27 +40,61 @@
       - git
       - apt-transport-https
       - wget
-      #- code
-      #- podman
-      #- docker
-      #- virtualbox-ext-pack
-      #- vagrant
-      #- google-chrome-stable
-      #- aws-shell
-      #- shellcheck
-      #- nodejs
-      #- default-jdk
-      #- alien
-      #- gnome-tweak-tool
-      #- vlc
-      #- ubuntu-restricted-extras
-      #- xfburn
+      - python
+      - peek
+      - code
+      - podman
+      - docker-ce
+      - docker-compose
+      - virtualbox-ext-pack
+      - vagrant
+      - google-chrome-stable
+      - aws-shell
+      - shellcheck
+      - nodejs
+      - default-jdk
+      - alien
+      - gnome-tweaks
+      - vlc
+      - ubuntu-restricted-extras
+      - xfburn
+      - ansible
+      - puppet
       - snap
-  
+      - unzip
+      - gnome-shell-extensions
+
+  - name: DevOps tools
+    apt:
+      deb: "{{ item }}"
+    loop:
+      - https://packages.chef.io/files/stable/chefdk/3.9.0/ubuntu/18.04/chefdk_3.9.0-1_amd64.deb
+      - https://pm.puppet.com/cgi-bin/pdk_download.cgi?dist=ubuntu&rel=18.04&arch=amd64&ver=latest
+      - https://www.mendeley.com/repositories/ubuntu/stable/amd64/mendeleydesktop-latest
+
+  - name: Download terraform archive Linux 64 bits
+    vars: { terraform_version: 0.11.13 }
+    get_url:
+      url: https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip
+      dest: /tmp/terraform-{{terraform_version}}.zip
+    #when: "'64' in ansible_architecture and 'Linux' == ansible_system"
+    notify:
+    - Unarchive Terraform archive
+
+  handlers:
+  - name: Unarchive Terraform archive
+    vars: { terraform_dir: /usr/local/bin/terraform }
+    unarchive:
+      src: /tmp/terraform-{{terraform_version}}.zip
+      dest: "{{terraform_dir}}"
+      copy: no
+
+  # This section requires Ansible 2.8
+  #post_tasks:
   #- name: Snap applications
-  #  snap:
-  #    name:
-  #      - skype
-  #      - slack
-  #    classic: yes
-  #    state: present
+  #snap:
+  #name:
+  #- skype
+  #- slack
+  #classic: yes
+  #state: present
