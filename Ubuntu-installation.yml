@@ -72,22 +72,30 @@
       - https://pm.puppet.com/cgi-bin/pdk_download.cgi?dist=ubuntu&rel=18.04&arch=amd64&ver=latest
       - https://www.mendeley.com/repositories/ubuntu/stable/amd64/mendeleydesktop-latest
 
-  - name: Download terraform archive Linux 64 bits
-    vars: { terraform_version: 0.11.13 }
+  - name: Download terraform and packer 64 bits
     get_url:
-      url: https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip
-      dest: /tmp/terraform-{{terraform_version}}.zip
+      url: https://releases.hashicorp.com/{{item.name}}/{{ item.version }}/{{item.name}}_{{ item.version }}_linux_amd64.zip
+      dest: /tmp/{{item.name}}-{{item.version}}.zip
+    loop:
+      - name: terraform
+        version: 0.11.13
+      - name: packer
+        version: 1.4.0
     #when: "'64' in ansible_architecture and 'Linux' == ansible_system"
     notify:
-    - Unarchive Terraform archive
+    - Unarchive hashicorp archive
 
   handlers:
-  - name: Unarchive Terraform archive
-    vars: { terraform_dir: /usr/local/bin/terraform }
+  - name: "Unarchive hashicorp archive"
     unarchive:
-      src: /tmp/terraform-{{terraform_version}}.zip
-      dest: "{{terraform_dir}}"
+      src: "/tmp/{{item.name}}-{{item.version}}.zip"
+      dest: /usr/local/bin/
       copy: no
+    loop:
+      - name: terraform
+        version: 0.11.13
+      - name: packer
+        version: 1.4.0
 
   # This section requires Ansible 2.8
   #post_tasks:
