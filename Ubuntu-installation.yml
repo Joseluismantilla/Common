@@ -2,7 +2,9 @@
   hosts: localhost
   become: true
   vars:
-    codename: "{{ ansible_lsb.codename }}"
+    codename: "{{ ansible_facts['distribution_release'] }}"
+    soversion: "{{ ansible_facts['distribution_major_version'] }}"
+
   pre_tasks:
   - name: curl of vscode repo
     apt_key:
@@ -19,17 +21,19 @@
       repo: "{{ item }}"
       state: present 
       filename: additional-repos
-      update_cache: yes 
-      validate_certs: yes 
+      codename: "{{codename}}"
+      #update_cache: yes 
+      #validate_certs: yes 
     loop:
       - deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
       - deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
       - ppa:ansible/ansible
       - "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{codename}}  stable"
-        #- ppa:projectatomic/ppa
+        #- ppa:projectatomic/ppa #Podman package
       - deb http://linux.teamviewer.com/deb stable main
       - ppa:peek-developers/stable
       - "deb http://archive.canonical.com/ {{codename}} partner"
+  
   tasks:
   - name: Refreshing repositories
     apt:
@@ -96,9 +100,10 @@
       - https://packages.chef.io/files/stable/chefdk/4.0.60/ubuntu/18.04/chefdk_4.0.60-1_amd64.deb
       - https://pm.puppet.com/cgi-bin/pdk_download.cgi?dist=ubuntu&rel=18.04&arch=amd64&ver=latest
       - https://www.mendeley.com/repositories/ubuntu/stable/amd64/mendeleydesktop-latest
-      - "https://packages.microsoft.com/config/ubuntu/{{ ansible_lsb.release }}/packages-microsoft-prod.deb"
+      - "https://packages.microsoft.com/config/ubuntu/{{osversion}}/packages-microsoft-prod.deb"
 
   - name: Download terraform and packer 64 bits
+    become: false
     get_url:
       url: https://releases.hashicorp.com/{{item.name}}/{{ item.version }}/{{item.name}}_{{ item.version }}_linux_amd64.zip
       dest: /tmp/{{item.name}}-{{item.version}}.zip
