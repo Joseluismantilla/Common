@@ -84,6 +84,11 @@
       - tilix
       - unzip
       - gnome-shell-extensions
+      - gnome-shell-extension-autohidetopbar 
+      - gnome-shell-extension-easyscreencast 
+      - gnome-shell-extension-gsconnect 
+      - gnome-shell-extension-gsconnect-browsers 
+      - gnome-shell-extension-multi-monitors
 
 
   - stat:
