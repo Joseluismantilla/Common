@@ -100,3 +100,45 @@ https://blog.serverdensity.com/80-linux-monitoring-tools-know/
 
 pip install TermRecord
 TermRecord -o /tmp/session.html bash
+
+## Azure
+
+```bash
+sudo apt-get update && sudo apt-get install -y libssl-dev libffi-dev python-dev python-pip
+pip install setuptools wheel 
+pip install ansible[azure]
+sudo apt install ansible
+```
+Now, follow the steps for installing azure-cli
+https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
+
+Creating an Azurevm from localhost
+
+$ az login
+* It creates the ~/.azure folder with the login
+
+Azure from VSCode
+
+Plugins to install:
+* Azure CLI Tools
+* Azure Account
+
+### .Net en Ubuntu
+
+Download the SDK or Runtime at https://dotnet.microsoft.com/download
+
+Example doing downgrade to dotnet-sdk-2.2 package.
+```bash
+sudo apt cache policy dotnet-sdk-2.2
+sudo apt install dotnet-sdk-2.2=2.2.102-1
+sudo apt-mark hold dotnet-sdk-2.2
+```
+
+### Nodejs
+
+sudo apt install nodejs
+
+```bash
+nvm install 6
+nvm list
+```
