@@ -1,6 +1,11 @@
 - name: Example
   hosts: localhost
-  tasks:
+  become: true
+  vars:
+    codename: "{{ ansible_facts['distribution_release'] }}"
+    osversion: "{{ ansible_facts['distribution_major_version'] }}"
+
+  pre_tasks:
   - name: curl of vscode repo
     apt_key:
       url: "{{ item }}"
@@ -8,21 +13,32 @@
     loop:
       - https://dl.google.com/linux/linux_signing_key.pub
       - https://packages.microsoft.com/keys/microsoft.asc
-
+      - https://download.docker.com/linux/ubuntu/gpg
+      - https://download.teamviewer.com/download/linux/signature/TeamViewer2017.asc
+  - stat:
+      path: /etc/apt/sources.list.d/additional-repos.list
+    register: repository
 
   - name: Configuring repos 
     apt_repository:
       repo: "{{ item }}"
       state: present 
       filename: additional-repos
-      update_cache: yes 
-      validate_certs: yes 
+      codename: "{{codename}}"
+      #update_cache: yes 
+      #validate_certs: yes 
     loop:
       - deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
       - deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
-      - deb http://ppa.launchpad.net/peek-developers/stable/ubuntu bionic main
-      - deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
-      - ppa:projectatomic/ppa
+      - ppa:ansible/ansible
+      - "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{codename}}  stable"
+        #- ppa:projectatomic/ppa #Podman package
+      - deb http://linux.teamviewer.com/deb stable main
+      - ppa:peek-developers/stable
+      - "deb http://archive.canonical.com/ {{codename}} partner"
+    when: not repository.stat.exists
+
+  tasks:
   - name: Refreshing repositories
     apt:
       name: "{{ item }}"
@@ -35,27 +51,154 @@
       - git
       - apt-transport-https
       - wget
-      #- code
-      #- podman
-      #- docker
-      #- virtualbox-ext-pack
-      #- vagrant
-      #- google-chrome-stable
-      #- aws-shell
-      #- shellcheck
-      #- nodejs
-      #- default-jdk
-      #- alien
-      #- gnome-tweak-tool
-      #- vlc
-      #- ubuntu-restricted-extras
-      #- xfburn
+      - python
+      - peek
+      - code
+        #- podman
+      - docker-ce
+      - docker-compose
+      - virtualbox-ext-pack
+      - vagrant
+      - google-chrome-stable
+      - aws-shell
+      - shellcheck
+      - nodejs
+      - npm
+      - python-pip
+      - default-jdk
+      - alien
+      - gnome-tweaks
+      - vlc
+      - tlp
+      - tlp-rdw
+      - ubuntu-restricted-extras
+      - libavcodec-extra 
+      - adobe-flashplugin
+      - browser-plugin-freshplayer-pepperflash
+      - gnome-tweak-tool
+      - chrome-gnome-shell
+      - xfburn
+      - ansible
+      - puppet
       - snap
+      - tilix
+      - unzip
+      - gnome-shell-extensions
+      - gnome-shell-extension-autohidetopbar 
+      - gnome-shell-extension-easyscreencast 
+      - gnome-shell-extension-gsconnect 
+      - gnome-shell-extension-gsconnect-browsers 
+      - gnome-shell-extension-multi-monitors
+
+
+  - stat:
+      path: ~/.nvm
+    register: nvmfolder
+
+  - name: nvm 
+    become: false
+    shell: >
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+    when: not nvmfolder.stat.exists
+
+  - name: azure cli
+    shell: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+  - name: Install serverless package globally.
+    npm:
+      name: serverless
+      global: yes
+
+  - name: Validating chefdk
+    command: dpkg -l chefdk
+    register: chefdk
+
+  - name: Validating puppetdk
+    command: dpkg -l pdk
+    register: puppetdk
+
+  - name: DevOps tools - chefdk & puppetdk
+    apt:
+      deb: "{{ item }}"
+    loop:
+      - https://packages.chef.io/files/stable/chefdk/4.0.60/ubuntu/18.04/chefdk_4.0.60-1_amd64.deb
+      - https://pm.puppet.com/cgi-bin/pdk_download.cgi?dist=ubuntu&rel=18.04&arch=amd64&ver=latest
+      - https://www.mendeley.com/repositories/ubuntu/stable/amd64/mendeleydesktop-latest
+      - "https://packages.microsoft.com/config/ubuntu/{{osversion}}/packages-microsoft-prod.deb"
+    when: puppetdk.rc == 1 or chefdk.rc == 1
+
+  - command: which terraform
+    register: terraform
+
+  - command: which packer
+    register: packer
+      
+  - name: Downloading terraform and packer 64 bits
+    become: false
+    get_url:
+      url: https://releases.hashicorp.com/{{item.name}}/{{ item.version }}/{{item.name}}_{{ item.version }}_linux_amd64.zip
+      dest: /tmp/{{item.name}}-{{item.version}}.zip
+    loop:
+      - name: terraform
+        version: 0.11.13
+      - name: packer
+        version: 1.4.0
+    #when: "'64' in ansible_architecture and 'Linux' == ansible_system"
+    when: packer.rc == 1 or terraform.rc == 1
+    notify:
+    - Unarchive hashicorp archive
+    
+  - name: Scripts tab completions
+    become: false
+    git:
+      dest: /tmp/repo
+      repo: https://github.com/Joseluismantilla/Common.git 
+      force: no 
+      clone: yes
   
-  #- name: Snap applications
-  #  snap:
-  #    name:
-  #      - skype
-  #      - slack
-  #    classic: yes
-  #    state: present
+  - stat:
+      path: /tmp/repo/bash_completion
+    register: gitrepo
+
+  - name: Installing Pulumi
+    become: false
+    shell: |
+      curl -fsSL https://get.pulumi.com | sh
+      ~/.pulumi/bin/pulumi gen-completion bash > /tmp/repo/bash_completion/pulumi-completion.bash
+    when: not gitrepo.stat.exists
+    notify:
+      - Copying scripts    
+
+  handlers:
+  - name: Unarchive hashicorp archive
+    unarchive:
+      src: "/tmp/{{item.name}}-{{item.version}}.zip"
+      dest: /usr/local/bin/
+      copy: no
+    loop:
+      - name: terraform
+        version: 0.11.13
+      - name: packer
+        version: 1.4.0
+
+  - name: Copying scripts
+    copy:
+        dest: /etc/bash_completion.d/
+        src: "/tmp/repo/bash_completion/"
+
+  - name: Update and upgrade apt packages
+    become: true
+    apt:
+      upgrade: yes
+      update_cache: yes
+  
+  # This section requires Ansible 2.8
+  post_tasks:
+  - name: Snap applications
+    snap:
+      name:
+      - skype
+      - slack
+      - spotify
+      classic: yes
+      state: present
