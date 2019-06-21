@@ -206,7 +206,7 @@
       update_cache: yes
   
    # This section requires Ansible 1.8
-    post_tasks:
+  post_tasks:
     - name: Snap applications
       snap:
         name:
