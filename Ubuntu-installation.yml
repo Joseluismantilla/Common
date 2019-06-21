@@ -1,12 +1,45 @@
-- name: Example
+- name: Installing DevOps packages and utils for working
   hosts: localhost
   become: true
   vars:
     codename: "{{ ansible_facts['distribution_release'] }}"
-    osversion: "{{ ansible_facts['distribution_major_version'] }}"
+    osversion: "{{ ansible_facts['distribution_version'] }}"
 
   pre_tasks:
-  - name: curl of vscode repo
+  - name: Updating repos (apt update)
+    apt:
+        update_cache: yes
+  
+  - name: Upgrading packages (apt upgrade)
+    apt:
+        upgrade: yes 
+        
+  - name: Installing prerrequisites
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: latest
+    loop:
+      - software-properties-common 
+      - uidmap
+      - git
+      - curl
+      - apt-transport-https
+      - wget
+      - python
+      - sudo
+      - unzip
+      - alien
+      - vlc
+      - tlp
+      - tlp-rdw
+      - ubuntu-restricted-extras
+      - libavcodec-extra 
+      - chrome-gnome-shell
+      - unzip
+      - gnome-tweak-tool
+      - gnome-tweaks
+  - name: Repo keys 
     apt_key:
       url: "{{ item }}"
       state: present
@@ -25,8 +58,6 @@
       state: present 
       filename: additional-repos
       codename: "{{codename}}"
-      #update_cache: yes 
-      #validate_certs: yes 
     loop:
       - deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
       - deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
@@ -39,19 +70,13 @@
     when: not repository.stat.exists
 
   tasks:
-  - name: Refreshing repositories
+  - name: Installing additional packages
     apt:
       name: "{{ item }}"
       update_cache: yes
       state: latest
       cache_valid_time: 86400
     loop:
-      - software-properties-common 
-      - uidmap
-      - git
-      - apt-transport-https
-      - wget
-      - python
       - peek
       - code
         #- podman
@@ -66,30 +91,14 @@
       - npm
       - python-pip
       - default-jdk
-      - alien
-      - gnome-tweaks
-      - vlc
-      - tlp
-      - tlp-rdw
-      - ubuntu-restricted-extras
-      - libavcodec-extra 
-      - adobe-flashplugin
-      - browser-plugin-freshplayer-pepperflash
-      - gnome-tweak-tool
-      - chrome-gnome-shell
-      - xfburn
       - ansible
       - puppet
       - snap
       - tilix
-      - unzip
-      - gnome-shell-extensions
-      - gnome-shell-extension-autohidetopbar 
-      - gnome-shell-extension-easyscreencast 
-      - gnome-shell-extension-gsconnect 
-      - gnome-shell-extension-gsconnect-browsers 
-      - gnome-shell-extension-multi-monitors
-
+      - adobe-flashplugin
+      - browser-plugin-freshplayer-pepperflash
+    #  - teamviewer
+      
 
   - stat:
       path: ~/.nvm
@@ -112,10 +121,12 @@
   - name: Validating chefdk
     command: dpkg -l chefdk
     register: chefdk
+    ignore_errors: yes
 
   - name: Validating puppetdk
     command: dpkg -l pdk
     register: puppetdk
+    ignore_errors: yes
 
   - name: DevOps tools - chefdk & puppetdk
     apt:
@@ -125,13 +136,15 @@
       - https://pm.puppet.com/cgi-bin/pdk_download.cgi?dist=ubuntu&rel=18.04&arch=amd64&ver=latest
       - https://www.mendeley.com/repositories/ubuntu/stable/amd64/mendeleydesktop-latest
       - "https://packages.microsoft.com/config/ubuntu/{{osversion}}/packages-microsoft-prod.deb"
-    when: puppetdk.rc == 1 or chefdk.rc == 1
+    when: puppetdk.rc != 0 or chefdk.rc != 0
 
   - command: which terraform
     register: terraform
+    ignore_errors: yes
 
   - command: which packer
     register: packer
+    ignore_errors: yes
       
   - name: Downloading terraform and packer 64 bits
     become: false
@@ -192,13 +205,13 @@
       upgrade: yes
       update_cache: yes
   
-  # This section requires Ansible 2.8
-  post_tasks:
-  - name: Snap applications
-    snap:
-      name:
-      - skype
-      - slack
-      - spotify
-      classic: yes
-      state: present
+   # This section requires Ansible 1.8
+    post_tasks:
+    - name: Snap applications
+      snap:
+        name:
+        - skype
+        - slack
+        - spotify
+        classic: yes
+        state: present
