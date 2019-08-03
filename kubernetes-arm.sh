@@ -21,6 +21,17 @@ apt update
 apt install docker-ce
 gpasswd -a ubuntu docker
 
+#--- Docker universal script
+curl -sL https://get.docker.com | sh
+sudo usermod ubuntu -aG docker
+
+#----Podman ----
+sudo apt-get install -qq -y software-properties-common uidmap
+sudo add-apt-repository -y ppa:projectatomic/ppa
+sudo apt-get update -qq
+sudo apt-get -qq -y install podman
+
+#---Kubernetes---
 apt-get update && apt-get install -y apt-transport-https curl
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
@@ -30,6 +41,15 @@ apt-get update
 apt-get install -y kubelet kubeadm kubectl
 apt-mark hold kubelet kubeadm kubectl
 
+#---Kubernetes alternative---
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add — && \
+echo “deb http://apt.kubernetes.io/ kubernetes-xenial main” | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
+sudo apt-get update -q && sudo apt-get install -qy kubeadm
+
+#---- Ansible -----
+$ sudo apt install software-properties-common
+$ sudo apt-add-repository --yes --update ppa:ansible/ansible
+$ sudo apt install ansible
 
 hostnamectl set-hostname privatecloud.example.com
 echo "192.168.1.110  privatecloud.example.com privatecloud" >> /etc/hosts
@@ -49,7 +69,7 @@ echo "net.ipv4.conf.all.forwarding=1" | sudo tee -a /etc/sysctl.conf
 kubectl completion bash > kubectl.bash
 kubeadm completion bash > kubeadm.bash
 
-Network Plugin
+#---- Network Plugin ----
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 
 ubuntu@privatecloud:~$ kubectl get nodes
@@ -72,3 +92,5 @@ Master with pods
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
 By default, your cluster will not schedule pods on the master for security reasons. If you want to be able to schedule pods on the master, e.g. for a single-machine Kubernetes cluster for development. 
+
+#--- More tools https://containerized.me/arming-kubernetes-with-openebs-1/
