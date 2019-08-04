@@ -4,6 +4,23 @@
 #Disable swap
 #vim /etc/default/armbian-zram-config
 
+#Img backup
+
+sudo dd if=/dev/mmcblk0p1 of=Armbian.img
+
+e2fsck -f -y xxx.img
+resize2fs -M xxx.img
+
+#Resizing SD
+
+systemctl start armbian-resize-filesystem.service
+
+##Alternativa
+
+sudo cfdisk /dev/mmcblk0
+sudo resize2fs /dev/mmcblk0p1
+sudo touch /forcefsck    (if the previous command didn't work)
+
 #Installing NO-IP
 cd /usr/local/src
 wget https://www.noip.com/client/linux/noip-duc-linux.tar.gz
