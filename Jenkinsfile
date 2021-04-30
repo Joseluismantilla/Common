@@ -9,7 +9,7 @@ pipeline {
     }
     post { 
         always { 
-            echo 'Validating again.'
+            echo 'Validating again directly.'
         }
     }
 }
