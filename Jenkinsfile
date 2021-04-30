@@ -1,15 +1,9 @@
 pipeline {
-    agent {
-    docker {
-        image 'nginx:alpine'
-        label 'my-defined-label'
-        args  '-v /tmp:/tmp'
-        }
-    }
+    agent { any }
     stages {
         stage('Building') {
             steps {
-                echo 'Probando 3a vez en Jenkins'
+                echo 'Probando 4a vez en Jenkins'
             }
         }
     }
