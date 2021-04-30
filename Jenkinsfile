@@ -3,13 +3,13 @@ pipeline {
     stages {
         stage('Building') {
             steps {
-                echo 'Probando 4a vez en Jenkins'
+                echo 'Testing on Jenkins'
             }
         }
     }
     post { 
         always { 
-            echo 'Con mi cielo.'
+            echo 'Hello World.'
         }
     }
 }
