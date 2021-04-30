@@ -1,15 +1,11 @@
 pipeline {
-    agent any 
+    agent any
+
     stages {
-        stage('Building') {
+        stage('Hello') {
             steps {
-                echo 'Testing from Jenkins the push event.'
+                echo 'Hello World'
             }
-        }
-    }
-    post { 
-        always { 
-            echo 'Hello World'
         }
     }
 }
