@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+    docker {
+        image 'nginx:alpine'
+        label 'my-defined-label'
+        args  '-v /tmp:/tmp'
+        }
+    }
     stages {
         stage('Building') {
             steps {
