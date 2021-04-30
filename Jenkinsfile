@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Building') {
             steps {
-                echo 'Testing on Jenkins'
+                echo 'Testing from Jenkins the push event.'
             }
         }
     }
