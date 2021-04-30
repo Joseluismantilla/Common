@@ -9,7 +9,7 @@ pipeline {
     }
     post { 
         always { 
-            echo 'Con mi cielo de nuevo.'
+            echo 'Con mi cielo.'
         }
     }
 }
