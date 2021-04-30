@@ -9,7 +9,7 @@ pipeline {
     }
     post { 
         always { 
-            echo 'Validating again directly after pushing'
+            echo 'Validating again with http url '
         }
     }
 }
